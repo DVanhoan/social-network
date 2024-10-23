@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
+import { BiLogOut } from "react-icons/bi";
 
 // import { POSTS } from "../../utils/db/dummy";
 
@@ -13,9 +14,11 @@ import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
+import useLogout from "../../hooks/useLogout";
 
 import useFollow from "../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
+import useUserProfile from "../../hooks/useUserProfile";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
@@ -30,26 +33,14 @@ const ProfilePage = () => {
   const { follow, isPending } = useFollow();
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
+  const { mutate: logout } = useLogout();
+
   const {
     data: user,
     isLoading,
     refetch,
     isRefetching,
-  } = useQuery({
-    queryKey: ["userProfile"],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`/api/users/profile/${username}`);
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
-        return data;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-  });
+  } = useUserProfile(username);
 
   const { isUpdatingProfile, updateProfile } = useUpdateUserProfile();
 
@@ -84,16 +75,29 @@ const ProfilePage = () => {
         <div className="flex flex-col">
           {!isLoading && !isRefetching && user && (
             <>
-              <div className="flex gap-10 px-4 py-2 items-center">
-                <Link to="/">
-                  <FaArrowLeft className="w-4 h-4" />
-                </Link>
-                <div className="flex flex-col">
-                  <p className="font-bold text-lg">{user?.fullName}</p>
-                  <span className="text-sm text-slate-500">
-                    {/*{POSTS?.length} posts*/}
-                    20 posts
-                  </span>
+              <div className="flex gap-10 px-4 py-2 items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Link to="/">
+                    <FaArrowLeft className="w-4 h-4" />
+                  </Link>
+                  <div className="flex flex-col">
+                    <p className="font-bold text-lg">{user?.fullName}</p>
+                    <span className="text-sm text-slate-500">
+                      @{user?.username}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="p-2 cursor-pointer rounded-md hover:bg-gray-600"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    logout();
+                  }}
+                >
+                  <BiLogOut className="w-5 h-5" />
                 </div>
               </div>
 
@@ -245,7 +249,9 @@ const ProfilePage = () => {
             </>
           )}
 
-          <Posts feedType={feedType} username={username} userId={user?._id} />
+          <div className="pb-16">
+            <Posts feedType={feedType} username={username} userId={user?._id} />
+          </div>
         </div>
       </div>
     </>

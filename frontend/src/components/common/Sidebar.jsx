@@ -4,30 +4,11 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+import useLogout from "../../hooks/useLogout";
 
 const Sidebar = () => {
-  const queryClient = useQueryClient();
-  const { mutate: logout } = useMutation({
-    mutationFn: async () => {
-      try {
-        const res = await fetch("/api/auth/logout", { method: "POST" });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
-    },
-    onError: () => {
-      toast.error("Logout failed");
-    },
-  });
+  const { mutate: logout } = useLogout();
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
   return (
@@ -108,6 +89,7 @@ const Sidebar = () => {
           <MdHomeFilled className="w-7 h-7 text-white" />
           <span className="text-xs text-gray-400">Home</span>
         </Link>
+
         <Link to="/notifications" className="flex flex-col items-center">
           <IoNotifications className="w-7 h-7 text-white" />
           <span className="text-xs text-gray-400">Notifications</span>
@@ -124,4 +106,5 @@ const Sidebar = () => {
     </div>
   );
 };
+
 export default Sidebar;
