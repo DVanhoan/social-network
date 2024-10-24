@@ -2385,13 +2385,13 @@ signal-exit@^4.0.1:
   resolved "file:.."
   dependencies:
     bcryptjs "^2.4.3"
-    cloudinary "^2.5.1"
-    cookie-parser "^1.4.7"
+    cloudinary "^2.1.0"
+    cookie-parser "^1.4.6"
     cors "^2.8.5"
     dotenv "^16.4.5"
-    express "^4.21.1"
+    express "^4.19.2"
     jsonwebtoken "^9.0.2"
-    mongoose "^8.7.2"
+    mongoose "^8.3.1"
 
 source-map-js@^1.2.1:
   version "1.2.1"
@@ -2601,6 +2601,7 @@ ts-interface-checker@^0.1.9:
     cloudinary "^2.1.0"
     cookie-parser "^1.4.6"
     cors "^2.8.5"
+    cross-env "^7.0.3"
     dotenv "^16.4.5"
     express "^4.19.2"
     jsonwebtoken "^9.0.2"

@@ -9,6 +9,7 @@ const CreatePost = () => {
   const [text, setText] = useState("");
   const [img, setImg] = useState(null);
   const imgRef = useRef(null);
+  const [onPost, setOnPost] = useState(false);
 
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
   const queryClient = useQueryClient();
@@ -70,12 +71,22 @@ const CreatePost = () => {
         </div>
       </div>
       <form className="flex flex-col gap-2 w-full" onSubmit={handleSubmit}>
-        <textarea
-          className="textarea w-full p-0 text-lg resize-none border-none focus:outline-none  border-gray-800"
-          placeholder="What is happening?!"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
+        <div className="flex items-center justify-between w-full">
+          <textarea
+            className="textarea w-full p-0 text-lg resize-none border-none focus:outline-none"
+            placeholder="Bạn đang nghĩ gì?!"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onFocus={() => setOnPost(true)}
+          />
+          <div className="flex gap-2 items-center ml-2">
+            <CiImageOn
+              className="fill-primary w-6 h-6 cursor-pointer"
+              onClick={() => imgRef.current.click()}
+            />
+            <BsEmojiSmileFill className="fill-primary w-5 h-5 cursor-pointer" />
+          </div>
+        </div>
         {img && (
           <div className="relative w-72 mx-auto">
             <IoCloseSharp
@@ -91,29 +102,24 @@ const CreatePost = () => {
             />
           </div>
         )}
-
-        <div className="flex justify-between border-t py-2 border-t-gray-700">
-          <div className="flex gap-1 items-center">
-            <CiImageOn
-              className="fill-primary w-6 h-6 cursor-pointer"
-              onClick={() => imgRef.current.click()}
-            />
-            <BsEmojiSmileFill className="fill-primary w-5 h-5 cursor-pointer" />
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          ref={imgRef}
+          onChange={handleImgChange}
+        />
+        {onPost && (text || img) && (
+          <div className="flex justify-end pt-2">
+            <button className="btn btn-primary rounded-full btn-sm text-white px-4">
+              {isPending ? "Posting..." : "Post"}
+            </button>
           </div>
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            ref={imgRef}
-            onChange={handleImgChange}
-          />
-          <button className="btn btn-primary rounded-full btn-sm text-white px-4">
-            {isPending ? "Posting..." : "Post"}
-          </button>
-        </div>
+        )}
         {isError && <div className="text-red-500">{error.message}</div>}
       </form>
     </div>
   );
 };
+
 export default CreatePost;

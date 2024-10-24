@@ -1,6 +1,7 @@
 import XSvg from "../svgs/X";
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
+import { FaFacebookMessenger, FaSearch } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
@@ -88,6 +89,16 @@ const Sidebar = () => {
         <Link to="/" className="flex flex-col items-center">
           <MdHomeFilled className="w-7 h-7 text-white" />
           <span className="text-xs text-gray-400">Home</span>
+        </Link>
+
+        <Link to="/search" className="flex flex-col items-center">
+          <FaSearch className="w-7 h-7 text-white" />
+          <span className="text-xs text-gray-400">Search</span>
+        </Link>
+
+        <Link to="/messages" className="flex flex-col items-center">
+          <FaFacebookMessenger className="w-7 h-7 text-white" />
+          <span className="text-xs text-gray-400">Messages</span>
         </Link>
 
         <Link to="/notifications" className="flex flex-col items-center">

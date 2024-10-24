@@ -5,6 +5,7 @@ import LoginPage from "./pages/auth/login/LoginPage";
 import SignUpPage from "./pages/auth/signup/SignUpPage";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import MessagePage from "./pages/messages/MessagePage";
 
 import Sidebar from "./components/common/Sidebar";
 import RightPanel from "./components/common/RightPanel";
@@ -67,6 +68,10 @@ function App() {
         <Route
           path="/profile/:username"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/messages"
+          element={authUser ? <MessagePage /> : <Navigate to="/login" />}
         />
       </Routes>
       {authUser && <RightPanel />}
