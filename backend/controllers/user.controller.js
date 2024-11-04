@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 
-// models
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 
@@ -37,7 +36,6 @@ export const followUnfollowUser = async (req, res) => {
     const isFollowing = currentUser.following.includes(id);
 
     if (isFollowing) {
-      // Unfollow the user
       await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
       await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
 
@@ -164,5 +162,36 @@ export const updateUser = async (req, res) => {
   } catch (error) {
     console.log("Error in updateUser: ", error.message);
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const getFriendsList = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).populate("followers following");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const friends = user.following.filter((followedUser) =>
+      user.followers.some(
+        (follower) => follower._id.toString() === followedUser._id.toString()
+      )
+    );
+
+    if (friends.length === 0) {
+      return res.status(404).json({ error: "No friends found" });
+    }
+
+    const sanitizedFriends = friends.map((friend) => {
+      const { password, ...friendData } = friend.toObject();
+      return friendData;
+    });
+
+    res.status(200).json(sanitizedFriends);
+  } catch (error) {
+    console.error("Error in getFriendsList: ", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };

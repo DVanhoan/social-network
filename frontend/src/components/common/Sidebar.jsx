@@ -96,7 +96,10 @@ const Sidebar = () => {
           <span className="text-xs text-gray-400">Search</span>
         </Link>
 
-        <Link to="/messages" className="flex flex-col items-center">
+        <Link
+          to={`/messages/${authUser?.id}`}
+          className="flex flex-col items-center"
+        >
           <FaFacebookMessenger className="w-7 h-7 text-white" />
           <span className="text-xs text-gray-400">Messages</span>
         </Link>

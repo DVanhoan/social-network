@@ -1,21 +1,24 @@
-import { Link } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
-import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaSearch } from "react-icons/fa";
 
-const MessagePage = () => {
-  const queryClient = useQueryClient();
+import useConversations from "../../hooks/useConversations";
+
+import datas from "../../utils/data";
+
+const MessagesPage = () => {
   const [text, setText] = useState("");
-  const { data: notifications, isLoading } = useQuery({
-    queryKey: ["notifications"],
+
+  const { data: frendships, isLoading } = useQuery({
+    queryKey: ["frendships"],
     queryFn: async () => {
       try {
-        const res = await fetch("/api/notifications");
+        const res = await fetch("/api/users/frendships");
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Something went wrong");
         return data;
@@ -25,29 +28,19 @@ const MessagePage = () => {
     },
   });
 
-  const { mutate: deleteNotifications } = useMutation({
-    mutationFn: async () => {
-      try {
-        const res = await fetch("/api/notifications", {
-          method: "DELETE",
-        });
-        const data = await res.json();
+  const { id: userId } = useParams();
 
-        if (!res.ok) throw new Error(data.error || "Something went wrong");
-        return data;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    onSuccess: () => {
-      toast.success("Notifications deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const {
+    data: conversations,
+    isLoading: isLoadingConversations,
+    refetch,
+  } = useConversations(userId);
 
+  useEffect(() => {
+    refetch();
+  }, [userId, refetch]);
+
+  console.log(conversations);
   return (
     <>
       <div className="flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
@@ -85,48 +78,67 @@ const MessagePage = () => {
           />
         </div>
 
-        {isLoading && (
-          <div className="flex justify-center h-full items-center">
-            <LoadingSpinner size="lg" />
-          </div>
+        {isLoading ||
+          (isLoadingConversations && (
+            <div className="flex justify-center h-full items-center">
+              <LoadingSpinner size="lg" />
+            </div>
+          ))}
+        {frendships?.length === 0 && (
+          <div className="text-center p-4 font-bold">No conversations 🤔</div>
         )}
-        {notifications?.length === 0 && (
-          <div className="text-center p-4 font-bold">No messages 🤔</div>
-        )}
-        {/* {notifications?.map((notification) => (
-          <div className="border-b border-gray-700" key={notification._id}>
-            <div className="flex gap-2 p-4">
-              {notification.type === "follow" && (
-                <FaUser className="w-7 h-7 text-primary" />
-              )}
-              {notification.type === "like" && (
-                <FaHeart className="w-7 h-7 text-red-500" />
-              )}
-              <Link to={`/profile/${notification.from.username}`}>
+
+        <div className="flex flex-col gap-4 border-b border-gray-700">
+          <ul className="list-none p-0">
+            <div className="flex gap-4 overflow-x-auto whitespace-nowrap py-4">
+              <ul className="flex list-none p-0">
+                {datas.map((story, index) => (
+                  <li key={index} className="flex-shrink-0 mr-4">
+                    <div className="flex items-center gap-3 ml-2">
+                      <img
+                        src={story.profileImg || "/avatar-placeholder.png"}
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full"
+                      />
+                      {/* <div className="flex flex-col">
+                        <span className="font-bold">{story.username}</span>
+                        <span className="text-sm text-gray-500">
+                          {story.time}
+                        </span>
+                      </div> */}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ul>
+        </div>
+        {frendships?.map((friend) => (
+          <div className="border-b border-gray-700" key={friend._id}>
+            <div className="flex gap-4 items-center p-4 border-b border-gray-700">
+              <Link to={`/profile/`} className="flex items-center gap-3 w-full">
                 <div className="avatar">
-                  <div className="w-8 rounded-full">
+                  <div className="w-12 h-12 rounded-full overflow-hidden">
                     <img
-                      src={
-                        notification.from.profileImg ||
-                        "/avatar-placeholder.png"
-                      }
+                      src={friend.profileImg || "/avatar-placeholder.png"}
+                      alt={`${friend.fullName}'s profile`}
+                      className="object-cover"
                     />
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <span className="font-bold">
-                    @{notification.from.username}
-                  </span>{" "}
-                  {notification.type === "follow"
-                    ? "followed you"
-                    : "liked your post"}
+                <div className="flex flex-col justify-center w-full">
+                  <span className="font-bold text-base">{friend.fullName}</span>
+                  <span className="text-gray-500 truncate">hjsads</span>
                 </div>
+                {/*<div className="text-gray-500 text-sm whitespace-nowrap">*/}
+                {/*    {conversation.timestamp}*/}
+                {/*</div>*/}
               </Link>
             </div>
           </div>
-        ))} */}
+        ))}
       </div>
     </>
   );
 };
-export default MessagePage;
+export default MessagesPage;
