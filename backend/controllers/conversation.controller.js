@@ -39,13 +39,14 @@ export const createConversation = async (req, res) => {
 //get all conversations of a user
 export const getConversations = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.user.id;
     const conversations = await Conversation.find({
       participants: { $in: [userId] },
     })
       .populate("lastMessage")
       .populate("participants")
       .exec();
+
     res.status(200).json(conversations);
   } catch (error) {
     console.log("Error in getConversations controller: ", error);

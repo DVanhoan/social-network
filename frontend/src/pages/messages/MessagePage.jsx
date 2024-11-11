@@ -8,37 +8,24 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { FaSearch } from "react-icons/fa";
 
 import useConversations from "../../hooks/useConversations";
+import useFrendships from "../../hooks/useFrendships";
 
 import datas from "../../utils/data";
 
 const MessagesPage = () => {
   const [text, setText] = useState("");
 
-  const { data: frendships, isLoading } = useQuery({
-    queryKey: ["frendships"],
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/users/frendships");
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Something went wrong");
-        return data;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-  });
-
-  const { id: userId } = useParams();
+  const { data: frendships, isLoading } = useFrendships();
 
   const {
     data: conversations,
     isLoading: isLoadingConversations,
     refetch,
-  } = useConversations(userId);
+  } = useConversations();
 
   useEffect(() => {
     refetch();
-  }, [userId, refetch]);
+  }, [refetch]);
 
   console.log(conversations);
   return (
