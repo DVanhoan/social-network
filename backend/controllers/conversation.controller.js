@@ -36,16 +36,17 @@ export const createConversation = async (req, res) => {
   }
 };
 
-//get all conversations of a user
 export const getConversations = async (req, res) => {
   try {
-    const { userId } = req.user.id;
+    const userId = req.query.currentUserId || req.user._id;
     const conversations = await Conversation.find({
       participants: { $in: [userId] },
     })
       .populate("lastMessage")
       .populate("participants")
       .exec();
+
+    console.log("conversations: ", conversations);
 
     res.status(200).json(conversations);
   } catch (error) {
@@ -54,14 +55,25 @@ export const getConversations = async (req, res) => {
   }
 };
 
+
 export const getConversation = async (req, res) => {
   try {
-    const { userId, friendId } = req.params;
-    const conversation = await Conversation.findOne({
-      participants: { $all: [userId, friendId] },
-      isGroup: false,
-    });
-    res.status(200).json(conversation);
+    if (req.params.userId && req.params.friendId) {
+      const conversation = await Conversation.findOne({
+        participants: { $all: [req.params.userId, req.params.friendId] },
+        isGroup: false,
+      });
+      res.status(200).json(conversation);
+    } else {
+      const { userId, groupName } = req.params;
+      const conversation = await Conversation.findOne({
+        participants: { $all: [userId] },
+        groupName: groupName,
+        isGroup: true,
+      });
+      res.status(200).json(conversation);
+    }
+
   } catch (error) {
     console.log("Error in getConversation controller: ", error);
     res.status(500).json({ error: "Internal server error" });

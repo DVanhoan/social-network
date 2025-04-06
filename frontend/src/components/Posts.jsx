@@ -1,5 +1,4 @@
 import Post from "./Post";
-import PostSkeleton from "../skeletons/PostSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -50,15 +49,8 @@ const Posts = ({ feedType, username, userId }) => {
 
   return (
     <>
-      {(isLoading || isRefetching) && (
-        <div className="flex flex-col justify-center">
-          <PostSkeleton />
-          <PostSkeleton />
-          <PostSkeleton />
-        </div>
-      )}
       {!isLoading && !isRefetching && posts?.length === 0 && (
-        <p className="text-center my-4">No posts in this tab. Switch 👻</p>
+        <p className="text-center my-4">Không có bài viết nào! 👻</p>
       )}
       {!isLoading && !isRefetching && posts && (
         <div>

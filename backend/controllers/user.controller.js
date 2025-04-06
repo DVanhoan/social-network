@@ -41,10 +41,10 @@ export const followUnfollowUser = async (req, res) => {
 
       res.status(200).json({ message: "User unfollowed successfully" });
     } else {
-      // Follow the user
+
       await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
       await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
-      // Send notification to the user
+
       const newNotification = new Notification({
         type: "follow",
         from: req.user._id,
@@ -195,3 +195,20 @@ export const getFriendsList = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const findUsersLikeUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const regex = new RegExp("[" + username.split("").join("") + "]", "i");
+    const users = await User.find({ username: { $regex: regex } });
+    if (!users || users.length === 0) {
+      return res.status(404).json({ error: "No users found" });
+    }
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in findUsersLikeUsername: ", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+

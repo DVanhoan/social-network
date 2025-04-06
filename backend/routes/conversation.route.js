@@ -12,6 +12,6 @@ const router = express.Router();
 router.post("/", createConversation);
 router.get("/:conversationId", protectRoute, getConversation);
 router.get("/lastMessage", protectRoute, getLastMessage);
-router.get("/all", getConversations);
+router.get("/all", protectRoute, getConversations);
 
 export default router;

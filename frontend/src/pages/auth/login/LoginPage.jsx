@@ -18,14 +18,14 @@ const LoginPage = () => {
     isError,
     error,
   } = useMutation({
-    mutationFn: async ({ username, password }) => {
+    mutationFn: async ({ email, password }) => {
       try {
         const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ email, password }),
         });
 
         const data = await res.json();
@@ -55,20 +55,20 @@ const LoginPage = () => {
     <div className="max-w-screen-xl mx-auto flex h-screen">
       <div className="flex-1 flex flex-col justify-center items-center">
         <form className="flex gap-4 flex-col" onSubmit={handleSubmit}>
-          <h1 className="text-4xl font-extrabold text-white">{"Let's"} go.</h1>
-          <label className="input input-bordered rounded flex items-center gap-2">
+          <h1 className="text-4xl font-extrabold text-black">{"dvh"} media.</h1>
+          <label className="input input-bordered rounded flex items-center gap-2 bg-gray-100 text-black">
             <MdOutlineMail />
             <input
               type="text"
               className="grow"
-              placeholder="username"
-              name="username"
+              placeholder="email"
+              name="email"
               onChange={handleInputChange}
-              value={formData.username}
+              value={formData.email}
             />
           </label>
 
-          <label className="input input-bordered rounded flex items-center gap-2">
+          <label className="input input-bordered rounded flex items-center gap-2 bg-gray-100 text-black">
             <MdPassword />
             <input
               type="password"

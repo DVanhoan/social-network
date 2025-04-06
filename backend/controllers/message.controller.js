@@ -2,51 +2,13 @@ import Notification from "../models/notification.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import Message from "../models/message.model.js";
 
-export const sendMessage = async (req, res) => {
-  try {
-    const { content, conversationId, img } = req.body;
-    const sender = req.user._id;
-
-    if (!content && !img) {
-      return res
-        .status(400)
-        .json({ error: "Message must have content or image" });
-    }
-
-    if (img) {
-      const uploadedResponse = await cloudinary.uploader.upload(img);
-      img = uploadedResponse.secure_url;
-    }
-
-    const message = new Message({
-      content,
-      sender,
-      conversationId,
-      sentAt: Date.now(),
-    });
-
-    const newNotification = Notification.create({
-      from: sender,
-      to: conversationId,
-      type: "message",
-      read: false,
-      messageId: message._id,
-    });
-
-    await newNotification.save();
-    await message.save();
-    res.status(200).json(message);
-  } catch (error) {
-    console.log("Error in sendMessage controller: ", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
 export const getMessages = async (req, res) => {
   try {
     const { conversationId } = req.params;
+    console.log("conversationId: ", conversationId);
     const messages = await Message.find({ conversationId });
 
+    console.log("messages: ", messages);
     res.status(200).json(messages);
   } catch (error) {
     console.log("Error in getMessages controller: ", error);

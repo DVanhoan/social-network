@@ -59,8 +59,8 @@ const SignUpPage = () => {
           className="lg:w-2/3  mx-auto md:mx-20 flex gap-4 flex-col"
           onSubmit={handleSubmit}
         >
-          <h1 className="text-4xl font-extrabold text-white">Join today.</h1>
-          <label className="input input-bordered rounded flex items-center gap-2">
+          <h1 className="text-4xl font-extrabold text-black">Hello There.</h1>
+          <label className="input input-bordered rounded flex items-center gap-2 bg-gray-100 text-black">
             <MdOutlineMail />
             <input
               type="email"
@@ -72,7 +72,7 @@ const SignUpPage = () => {
             />
           </label>
           <div className="flex gap-4 flex-wrap">
-            <label className="input input-bordered rounded flex items-center gap-2 flex-1">
+            <label className="input input-bordered rounded flex items-center gap-2 flex-1 bg-gray-100 text-black">
               <FaUser />
               <input
                 type="text"
@@ -83,7 +83,7 @@ const SignUpPage = () => {
                 value={formData.username}
               />
             </label>
-            <label className="input input-bordered rounded flex items-center gap-2 flex-1">
+            <label className="input input-bordered rounded flex items-center gap-2 flex-1 bg-gray-100 text-black">
               <MdDriveFileRenameOutline />
               <input
                 type="text"
@@ -95,7 +95,7 @@ const SignUpPage = () => {
               />
             </label>
           </div>
-          <label className="input input-bordered rounded flex items-center gap-2">
+          <label className="input input-bordered rounded flex items-center gap-2 bg-gray-100 text-black">
             <MdPassword />
             <input
               type="password"

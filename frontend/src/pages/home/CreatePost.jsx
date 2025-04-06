@@ -55,6 +55,7 @@ const CreatePost = () => {
   const handleImgChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setOnPost(true);
       const reader = new FileReader();
       reader.onload = () => {
         setImg(reader.result);
@@ -64,7 +65,7 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="flex p-4 items-start gap-4 border-b border-gray-700">
+    <div className="flex p-4 pb-16 items-start gap-4 border-b border-gray-700">
       <div className="avatar">
         <div className="w-8 rounded-full">
           <img src={authUser.profileImg || "/avatar-placeholder.png"} />
@@ -73,7 +74,7 @@ const CreatePost = () => {
       <form className="flex flex-col gap-2 w-full" onSubmit={handleSubmit}>
         <div className="flex items-center justify-between w-full">
           <textarea
-            className="textarea w-full p-0 text-lg resize-none border-none focus:outline-none"
+            className="w-full p-0 text-lg text-black resize-none border-none bg-gray-100"
             placeholder="Bạn đang nghĩ gì?!"
             value={text}
             onChange={(e) => setText(e.target.value)}

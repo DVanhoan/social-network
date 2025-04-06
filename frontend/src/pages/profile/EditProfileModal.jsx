@@ -35,16 +35,16 @@ const EditProfileModal = ({ authUser }) => {
   return (
     <>
       <button
-        className="btn btn-outline rounded-full btn-sm"
+        className="btn btn-outline rounded-full btn-sm text-black"
         onClick={() =>
           document.getElementById("edit_profile_modal").showModal()
         }
       >
-        Edit profile
+        Sửa hồ sơ
       </button>
       <dialog id="edit_profile_modal" className="modal">
         <div className="modal-box border rounded-md border-gray-700 shadow-md">
-          <h3 className="font-bold text-lg my-3">Update Profile</h3>
+          <h3 className="font-bold text-lg my-3">Cập nhật</h3>
           <form
             className="flex flex-col gap-4"
             onSubmit={(e) => {

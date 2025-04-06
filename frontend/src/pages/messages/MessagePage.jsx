@@ -1,131 +1,190 @@
-import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { FaSearch, FaArrowLeft } from "react-icons/fa";
 
-import LoadingSpinner from "../../components/common/LoadingSpinner";
-
-import { IoSettingsOutline } from "react-icons/io5";
-import { FaSearch } from "react-icons/fa";
+import LoadingSpinner from "../../components/LoadingSpinner";
+import ChatWindow from "../../components/ChatWindow";
 
 import useConversations from "../../hooks/useConversations";
 import useFrendships from "../../hooks/useFrendships";
 
-import datas from "../../utils/data";
-
 const MessagesPage = () => {
-  const [text, setText] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [selectedConversation, setSelectedConversation] = useState(null);
 
-  const { data: frendships, isLoading } = useFrendships();
+  const { data: frendships, isLoading: loadingFriends } = useFrendships();
+  const { id: currentUserId } = useParams();
 
   const {
     data: conversations,
-    isLoading: isLoadingConversations,
+    isLoading: loadingConversations,
     refetch,
-  } = useConversations();
+  } = useConversations(currentUserId);
 
   useEffect(() => {
     refetch();
   }, [refetch]);
 
-  console.log(conversations);
-  return (
-    <>
-      <div className="flex-[4_4_0] border-l border-r border-gray-700 min-h-screen">
-        <div className="flex justify-between items-center p-4 border-b border-gray-700">
-          <p className="font-bold">Messages</p>
-          <div className="dropdown">
-            <div
-              tabIndex={0}
-              role="button"
-              className="p-2 md:p-3 cursor-pointer rounded-md hover:bg-gray-600"
-            >
-              <IoSettingsOutline className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
+  const handleSelectFriend = async (friend) => {
+    const existConversation = conversations?.find((conv) => {
+      if (conv.isGroup) return false;
+      const ids = conv.participants.map((p) => p._id);
+      return ids.includes(friend._id) && ids.includes(currentUserId);
+    });
 
-            <ul
-              tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-44 md:w-52"
-              style={{ right: "0", left: "auto" }}
-            >
-              <li>
-                <a>Hello world</a>
-              </li>
-            </ul>
-          </div>
+    if (existConversation) {
+      setSelectedConversation(existConversation);
+    } else {
+      try {
+        const response = await fetch("/api/conversations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            participants: [currentUserId, friend._id],
+            isGroup: false,
+          }),
+        });
+        const newConversation = await response.json();
+        setSelectedConversation(newConversation);
+        refetch();
+      } catch (error) {
+        console.error("Error tạo cuộc trò chuyện", error);
+      }
+    }
+  };
+
+
+  const handleBack = () => {
+    setSelectedConversation(null);
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden text-black">
+
+      <div
+        className={`
+          md:w-1/3 border-r border-l flex flex-col
+          ${selectedConversation ? "hidden md:block" : "block"}
+        `}
+      >
+
+        <div className="flex justify-between items-center p-4 border-b shrink-0">
+          <p className="font-bold text-lg">Nhắn tin</p>
         </div>
-        {/* search */}
-        <div className="flex items-center gap-2 border-b border-gray-700 p-2">
+
+
+        <div className="flex items-center gap-2 border-b p-2 shrink-0">
           <FaSearch className="text-gray-500 w-6 h-6" />
-          <textarea
-            className="textarea w-full p-2 text-lg resize-none border-none focus:outline-none"
-            style={{ height: "40px" }}
-            placeholder="Search..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+          <input
+            type="text"
+            className="w-full p-2 text-lg resize-none border-none focus:outline-none bg-transparent"
+            placeholder="Tìm kiếm..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
 
-        {isLoading ||
-          (isLoadingConversations && (
+
+        <div className="flex-1 overflow-y-auto">
+          {(loadingFriends || loadingConversations) && (
             <div className="flex justify-center h-full items-center">
               <LoadingSpinner size="lg" />
             </div>
-          ))}
-        {frendships?.length === 0 && (
-          <div className="text-center p-4 font-bold">No conversations 🤔</div>
-        )}
+          )}
 
-        <div className="flex flex-col gap-4 border-b border-gray-700">
-          <ul className="list-none p-0">
-            <div className="flex gap-4 overflow-x-auto whitespace-nowrap py-4">
-              <ul className="flex list-none p-0">
-                {datas.map((story, index) => (
-                  <li key={index} className="flex-shrink-0 mr-4">
-                    <div className="flex items-center gap-3 ml-2">
-                      <img
-                        src={story.profileImg || "/avatar-placeholder.png"}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full"
-                      />
-                      {/* <div className="flex flex-col">
-                        <span className="font-bold">{story.username}</span>
-                        <span className="text-sm text-gray-500">
-                          {story.time}
-                        </span>
-                      </div> */}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </ul>
-        </div>
-        {frendships?.map((friend) => (
-          <div className="border-b border-gray-700" key={friend._id}>
-            <div className="flex gap-4 items-center p-4 border-b border-gray-700">
-              <Link to={`/profile/`} className="flex items-center gap-3 w-full">
-                <div className="avatar">
-                  <div className="w-12 h-12 rounded-full overflow-hidden">
+          {conversations &&
+            conversations
+              .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+              .map((conv) => (
+                <div
+                  key={conv._id}
+                  className="border-b border-gray-300 p-4 hover:bg-gray-200 cursor-pointer"
+                  onClick={() => setSelectedConversation(conv)}
+                >
+                  <div className="flex gap-4 items-center">
                     <img
-                      src={friend.profileImg || "/avatar-placeholder.png"}
-                      alt={`${friend.fullName}'s profile`}
-                      className="object-cover"
+                      src={
+                        conv.participants.find((p) => p._id !== currentUserId)
+                          ?.profileImg || "/avatar-placeholder.png"
+                      }
+                      alt="avatar"
+                      className="w-12 h-12 rounded-full object-cover"
                     />
+                    <div className="flex flex-col">
+                      <span className="font-bold">
+                        {
+                          conv.participants.find((p) => p._id !== currentUserId)
+                            ?.fullName || "Unknown"
+                        }
+                      </span>
+                      <span className="text-gray-400 truncate">
+                        {conv.lastMessage?.content || ""}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col justify-center w-full">
-                  <span className="font-bold text-base">{friend.fullName}</span>
-                  <span className="text-gray-500 truncate">hjsads</span>
+              ))}
+
+          {frendships &&
+            frendships.map((friend) => (
+              <div
+                key={friend._id}
+                className="border-b p-4 hover:bg-gray-200 cursor-pointer"
+                onClick={() => handleSelectFriend(friend)}
+              >
+                <div className="flex gap-4 items-center">
+                  <img
+                    src={friend.profileImg || "/avatar-placeholder.png"}
+                    alt={`${friend.fullName}'s profile`}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-bold text-base">{friend.fullName}</span>
+                    <span className="text-gray-500 truncate">Nhấn để chat</span>
+                  </div>
                 </div>
-                {/*<div className="text-gray-500 text-sm whitespace-nowrap">*/}
-                {/*    {conversation.timestamp}*/}
-                {/*</div>*/}
-              </Link>
-            </div>
-          </div>
-        ))}
+              </div>
+            ))}
+        </div>
       </div>
-    </>
+
+
+
+      <div
+        className={`
+          flex-1 border-r flex flex-col
+          ${selectedConversation ? "block" : "hidden md:block"}
+        `}
+      >
+
+        <div className="md:hidden p-4 border-b flex items-center shrink-0">
+          <button onClick={handleBack} className="mr-2">
+            <FaArrowLeft className="w-5 h-5" />
+          </button>
+          <span className="font-bold">
+            {selectedConversation
+              ? selectedConversation.participants.find(
+                (p) => p._id !== currentUserId
+              )?.fullName
+              : "Chat"}
+          </span>
+        </div>
+
+        {selectedConversation ? (
+          <ChatWindow
+            conversationId={selectedConversation._id}
+            currentUserId={currentUserId}
+          />
+        ) : (
+          <div className="flex justify-center items-center h-full">
+            <p className="text-gray-500">
+              Chọn một cuộc trò chuyện để bắt đầu chat
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
+
 export default MessagesPage;

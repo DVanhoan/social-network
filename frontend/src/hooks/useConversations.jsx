@@ -1,19 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 
-const useConversations = () => {
+const useConversations = (currentUserId) => {
   return useQuery({
-    queryKey: ["conversations"],
+    queryKey: ["conversations", currentUserId],
     queryFn: async () => {
-      try {
-        const res = await fetch(`/api/conversations/all`);
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
-        return data;
-      } catch (error) {
-        throw new Error(error);
+      const res = await fetch(`/api/conversations/all?currentUserId=${currentUserId}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
       }
+      return data;
     },
   });
 };
