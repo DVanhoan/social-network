@@ -107,15 +107,15 @@ const SignUpPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            {isPending ? "Loading..." : "Sign up"}
+            {isPending ? "Loading..." : "Đăng ký"}
           </button>
           {isError && <p className="text-red-500">{error.message}</p>}
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
-          <p className="text-white text-lg">Already have an account?</p>
+          <p className="text-black text-lg">Bạn đã có tài khoản?</p>
           <Link to="/login">
             <button className="btn rounded-full btn-primary text-white btn-outline w-full">
-              Sign in
+              Đến đăng nhập
             </button>
           </Link>
         </div>

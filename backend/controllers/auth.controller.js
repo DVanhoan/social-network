@@ -1,6 +1,56 @@
+import { OAuth2Client } from "google-auth-library";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+
+const client = new OAuth2Client(process.env.CLIENT_ID);
+
+
+export const googleLogin = async (req, res) => {
+	try {
+		const { token } = req.body;
+		const ticket = await client.verifyIdToken({
+			idToken: token,
+			audience: process.env.CLIENT_ID,
+		});
+		const payload = ticket.getPayload();
+
+		let user = await User.findOne({ email: payload.email });
+
+		if (!user) {
+			const username = payload.email.split("@")[0];
+
+
+			const defaultPassword = await bcrypt.hash("defaultGooglePassword", 10);
+
+			user = new User({
+				fullName: payload.name,
+				username: username,
+				email: payload.email,
+				password: defaultPassword,
+				profileImg: payload.picture,
+			});
+			await user.save();
+		}
+
+
+		generateTokenAndSetCookie(user._id, res);
+
+		res.status(200).json({
+			_id: user._id,
+			fullName: user.fullName,
+			username: user.username,
+			email: user.email,
+			followers: user.followers,
+			following: user.following,
+			profileImg: user.profileImg,
+			coverImg: user.coverImg,
+		});
+	} catch (error) {
+		console.error("Error in googleLogin controller:", error.message);
+		res.status(500).json({ error: "Internal Server Error" });
+	}
+};
 
 export const signup = async (req, res) => {
 	try {

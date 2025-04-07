@@ -5,6 +5,8 @@ import { MdPassword } from "react-icons/md";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { GoogleLogin } from "@react-oauth/google";
+
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     username: "",
@@ -41,6 +43,28 @@ const LoginPage = () => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
   });
+
+
+
+
+  const handleLoginWithGoogle = async (credential) => {
+    try {
+      const res = await fetch("/api/auth/google-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credential }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    } catch (err) {
+      console.error("Google login error:", err);
+    }
+  };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -80,18 +104,38 @@ const LoginPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            {isPending ? "Loading..." : "Login"}
+            {isPending ? "Loading..." : "Đăng nhập"}
           </button>
           {isError && <p className="text-red-500">{error.message}</p>}
         </form>
+
+
+
+
         <div className="flex flex-col gap-2 mt-4">
-          <p className="text-white text-lg">{"Don't"} have an account?</p>
           <Link to="/signup">
-            <button className="btn rounded-full btn-primary text-white btn-outline w-full">
-              Sign up
+            <button className="btn rounded-full btn-primary text-white btn-outline w-60">
+              Đăng ký
             </button>
           </Link>
         </div>
+
+        <div className="flex flex-col gap-2 mt-4">
+          <GoogleLogin
+            shape="pill"
+            size="large"
+            width="240"
+            text="signin_with"
+            theme="outline"
+            onSuccess={(credentialResponse) => {
+              handleLoginWithGoogle(credentialResponse.credential);
+            }}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+          />
+        </div>
+
       </div>
     </div>
   );
